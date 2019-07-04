@@ -1,8 +1,10 @@
-#import bpy
+import bpy
 import math
 #from mathutils import Vector
 import numpy as np
-def point_at(obj, direction):
+
+
+def Point_at(obj, direction):
     if(type(direction)!=Vector):
        direction=Vector(direction)
     # point the obj 'Y' and use its 'Z' as up
@@ -11,13 +13,27 @@ def point_at(obj, direction):
     # assume we're using euler rotation
     obj.rotation_euler = rot_quat.to_euler()
     return
-def GaussianKernelValue(point1,point2):
+def GaussianKernelValue(point1,point2, sigma=10.0):
     distance=(point1[0]-point2[0])**2+(point1[1]-point2[1])**2+(
         point1[2]-point2[2])**2
-    distance=distance ** 0.5
-    print('distance is: {}'.format(distance))
+    tmp=-1*distance/sigma**2
+    result = math.exp(tmp)
+    print('result is: {}'.format(result))
     return
-print('imported!')
+
+def SpawnArrows():
+    arrow=bpy.data.objects['Arrow']
+    arrow.location = [0,0,1]
+    for y in range(0,5):
+        for x in range(0,5):
+            newarrow = arrow.copy()
+            newarrow.name='Arrow'+str(y*5+x)
+            newarrow.location=[x,y,0]
+            bpy.context.scene.objects.link(newarrow)
+    return
+
+print('statical modeling imported!')
+
 if __name__ == '__main__':
     #arrow = bpy.data.objects['Arrow']
     #point_at(arrow,(1,1,0))
@@ -33,7 +49,7 @@ if __name__ == '__main__':
         print('eval is: {}'.format(eval))
         result+=eval*np.dot(evecs[:,[big2small_indices[i]]],
         np.reshape(evecs[:,big2small_indices[i]],(1,3)))
-        #print(result)
+        print(result)
         pass
     
 
