@@ -21,13 +21,14 @@ def GaussianKernelValue(point1,point2, sigma=10.0):
     print('result is: {}'.format(result))
     return
 
-def SpawnArrows():
+def SpawnArrows(number=5):
+    #spawun 5 * 5 arrows
     arrow=bpy.data.objects['Arrow']
     arrow.location = [0,0,1]
-    for y in range(0,5):
-        for x in range(0,5):
+    for y in range(0,number):
+        for x in range(0,number):
             newarrow = arrow.copy()
-            newarrow.name='Arrow'+str(y*5+x)
+            newarrow.name='Arrow'+str(y*number+x)
             newarrow.location=[x,y,0]
             bpy.context.scene.objects.link(newarrow)
     return
