@@ -14,6 +14,14 @@ def Point_at(obj, direction):
     obj.rotation_euler = rot_quat.to_euler()
     return
 def GaussianKernelValue(point1,point2, sigma=10.0):
+    '''
+    access point1&2 by name if point is string
+    '''
+    if(type(point1)==str and type(point2)==str):
+        print('point1 is :{}'.format(point1))
+        point1=bpy.data.collections[0].objects[point1].location
+        point2=bpy.data.collections[0].objects[point2].location
+    print('point1 is :{}'.format(point1))
     distance=(point1[0]-point2[0])**2+(point1[1]-point2[1])**2+(
         point1[2]-point2[2])**2
     tmp=-1*distance/sigma**2
@@ -22,6 +30,9 @@ def GaussianKernelValue(point1,point2, sigma=10.0):
     return result
 
 def GaussianKernelMat2(point1,point2,sigma=10.0):
+    '''
+    return GaussianKernelMat 2by2
+    '''
     identityMat = np.identity(2)
     result = identityMat * GaussianKernelValue(point1, point2, sigma=10.0)
     return result
