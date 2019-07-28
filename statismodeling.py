@@ -19,7 +19,13 @@ def GaussianKernelValue(point1,point2, sigma=10.0):
     tmp=-1*distance/sigma**2
     result = math.exp(tmp)
     print('result is: {}'.format(result))
-    return
+    return result
+
+def GaussianKernelMat2(point1,point2,sigma=10.0):
+    identityMat = np.identity(2)
+    result = identityMat * GaussianKernelValue(point1, point2, sigma=10.0)
+    return result
+
 
 def SpawnArrows(number=5):
     #spawun 5 * 5 arrows
@@ -28,16 +34,18 @@ def SpawnArrows(number=5):
     for y in range(0,number):
         for x in range(0,number):
             newarrow = arrow.copy()
-            newarrow.name='Arrow'+str(y*number+x)
+            newarrow.name='Arrow' + str(y*number+x)
             newarrow.location=[x,y,0]
-            bpy.context.scene.objects.link(newarrow)
+            bpy.data.collections[0].objects.link(newarrow)
+            # bpy.context.scene.objects.link(newarrow)
     return
+
 
 print('statical modeling imported!')
 
 if __name__ == '__main__':
-    #arrow = bpy.data.objects['Arrow']
-    #point_at(arrow,(1,1,0))
+    # arrow = bpy.data.objects['Arrow']
+    # point_at(arrow,(1,1,0))
     testMat=np.array([[1,2,2],[2,1,2],[2,2,1]])
     evals,evecs=np.linalg.eig(testMat)
     result=np.zeros((3,3))
