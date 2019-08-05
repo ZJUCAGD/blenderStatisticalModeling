@@ -19,14 +19,14 @@ def GaussianKernelValue(point1,point2, sigma=10.0):
     '''
     if(type(point1)==str and type(point2)==str):
         print('point1 is :{}'.format(point1))
+        print('point2 is :{}'.format(point2))
         point1=bpy.data.collections[0].objects[point1].location
         point2=bpy.data.collections[0].objects[point2].location
-    print('point1 is :{}'.format(point1))
     distance=(point1[0]-point2[0])**2+(point1[1]-point2[1])**2+(
         point1[2]-point2[2])**2
     tmp=-1*distance/sigma**2
     result = math.exp(tmp)
-    print('result is: {}'.format(result))
+    print('GuassianKernelValue between {} and {} is: {}\n'.format(point1, point2, result))
     return result
 
 def GaussianKernelMat2(point1,point2,sigma=10.0):
@@ -37,9 +37,20 @@ def GaussianKernelMat2(point1,point2,sigma=10.0):
     result = identityMat * GaussianKernelValue(point1, point2, sigma=10.0)
     return result
 
+def GetKMat2(rows=5,colums=5):
+    '''the actual size is rows*dimensions * colums*dimensions, dimensions=2'''
+    name="Arrow"
+    K=np.mat(np.zeros((rows*colums,rows*colums),float))
+    def assignAt(i,j):
+        ''' ith object and jth object'''
+        Mat2=GaussianKernelMat2(name+str(i),name+str(j))
+        
+        print(Mat2)
 
+        # print(K)
+    assignAt(0,0)
 def SpawnArrows(number=5):
-    #spawun 5 * 5 arrows
+    # spawun 5 * 5 arrows
     arrow=bpy.data.objects['Arrow']
     arrow.location = [0,0,1]
     for y in range(0,number):
