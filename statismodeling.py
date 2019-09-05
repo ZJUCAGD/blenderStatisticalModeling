@@ -13,7 +13,7 @@ def Point_at(obj, direction):
     # assume we're using euler rotation
     obj.rotation_euler = rot_quat.to_euler()
     return
-def GaussianKernelValue(point1,point2, sigma=10.0):
+def GaussianKernelValue(point1,point2, sigma=1.0):
     '''
     access point1&2 by name if point is string
     '''
@@ -29,26 +29,44 @@ def GaussianKernelValue(point1,point2, sigma=10.0):
     print('GuassianKernelValue between {} and {} is: {}\n'.format(point1, point2, result))
     return result
 
-def GaussianKernelMat2(point1,point2,sigma=10.0):
+def GaussianKernelMat3(point1,point2,sigma=1.0):
     '''
-    return GaussianKernelMat 2by2
+    return GaussianKernelMat 3by3
     '''
-    identityMat = np.identity(2)
-    result = identityMat * GaussianKernelValue(point1, point2, sigma=10.0)
+    identityMat = np.identity(3)
+    result = identityMat * GaussianKernelValue(point1, point2, sigma)
     return result
 
-def GetKMat2(rows=5,colums=5):
-    '''the actual size is rows*dimensions * colums*dimensions, dimensions=2'''
+def GetKMat3(rows=5,colums=5):
+    '''the actual size is (rows*dimensions，colums*dimensions) dimensions=2'''
     name="Arrow"
-    K=np.mat(np.zeros((rows*colums,rows*colums),float))
+    K=np.mat(np.zeros((rows * 3,rows * 3),float))
     def assignAt(i,j):
         ''' ith object and jth object'''
-        Mat2=GaussianKernelMat2(name+str(i),name+str(j))
-        
-        print(Mat2)
-
+        Mat3 = GaussianKernelMat3(name+str(i),name+str(j))
+        for x in range(0,3):
+            for y in range(0,3):
+                K[i*3+x,j*3+y]=Mat3[x,y]
         # print(K)
-    assignAt(0,0)
+    for i in range(0, rows):
+        for j in range(0, colums):
+            assignAt(i,j)
+    return K
+
+def GetArgSortList(K=0):
+    if(K==0):
+        K=GetKMat3()
+    evals,evecs=np.linalg.eig(K)
+    print(evals)
+    big2small_indices = np.argsort(evals).tolist()
+    big2small_indices.reverse()
+    return big2small_indices
+
+def Phi(i, x, K=0):
+    if(K==0):
+        K = GetKMat3()
+    
+
 def SpawnArrows(number=5):
     # spawun 5 * 5 arrows
     arrow=bpy.data.objects['Arrow']
