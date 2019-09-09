@@ -13,23 +13,24 @@ def Point_at(obj, direction):
     # assume we're using euler rotation
     obj.rotation_euler = rot_quat.to_euler()
     return
-def GaussianKernelValue(point1,point2, sigma=1.0):
+def GaussianKernelValue(point1, point2, sigma=10.0):
     '''
     access point1&2 by name if point is string
     '''
-    if(type(point1)==str and type(point2)==str):
+    if(type(point1)==str):
         print('point1 is :{}'.format(point1))
-        print('point2 is :{}'.format(point2))
         point1=bpy.data.collections[0].objects[point1].location
+    if(type(point2)==str):
+        print('point2 is :{}'.format(point2))
         point2=bpy.data.collections[0].objects[point2].location
     distance=(point1[0]-point2[0])**2+(point1[1]-point2[1])**2+(
         point1[2]-point2[2])**2
-    tmp=-1*distance/sigma**2
+    tmp=-1*distance/(sigma**2)
     result = math.exp(tmp)
     print('GuassianKernelValue between {} and {} is: {}\n'.format(point1, point2, result))
     return result
 
-def GaussianKernelMat3(point1,point2,sigma=1.0):
+def GaussianKernelMat3(point1,point2,sigma=10.0):
     '''
     return GaussianKernelMat 3by3
     '''
@@ -37,35 +38,60 @@ def GaussianKernelMat3(point1,point2,sigma=1.0):
     result = identityMat * GaussianKernelValue(point1, point2, sigma)
     return result
 
-def GetKMat3(rows=5,colums=5):
-    '''the actual size is (rows*dimensions，colums*dimensions) dimensions=2'''
-    name="Arrow"
-    K=np.mat(np.zeros((rows * 3,rows * 3),float))
+def GetKMat3(rows=5, colums=5):
+    '''the actual size is (n * dimensions, n * dimensions) dimensions=2'''
+    n = rows * colums
+    name = "Arrow"
+    K = np.mat(np.zeros((n * 3, n * 3),float))
     def assignAt(i,j):
         ''' ith object and jth object'''
-        Mat3 = GaussianKernelMat3(name+str(i),name+str(j))
+        Mat3 = GaussianKernelMat3(name+str(i), name+str(j))
         for x in range(0,3):
             for y in range(0,3):
-                K[i*3+x,j*3+y]=Mat3[x,y]
+                K[i*3+x, j*3+y]=Mat3[x,y]
         # print(K)
-    for i in range(0, rows):
-        for j in range(0, colums):
-            assignAt(i,j)
+    for i in range(0, n):
+        for j in range(0, n):
+            assignAt(i, j)
+    ''' assert K is symmetrix matrix '''
+    assert((K.T==K).all())
     return K
 
 def GetArgSortList(K=0):
-    if(K==0):
+    if(type(K)==type(0)):
         K=GetKMat3()
-    evals,evecs=np.linalg.eig(K)
+    '''eigh is intended fo symmetric matrices'''
+    evals,evecs=np.linalg.eigh(K)
     print(evals)
     big2small_indices = np.argsort(evals).tolist()
     big2small_indices.reverse()
     return big2small_indices
 
-def Phi(i, x, K=0):
-    if(K==0):
+def Phi(i, t = "Arrow0", K=0):
+    if(type(K)==type(0)):
         K = GetKMat3()
-    
+    KX = np.mat(np.zeros((3, 75), float))
+    def assignAt(j):
+        Mat3 = GaussianKernelMat3("Arrow" + str(j), t)
+        for x in range(0, 3):
+            for y in range(0, 3):
+                KX[x, j * 3 + y] = Mat3[x, y]
+    for j in range(0, 25):
+        assignAt(j)
+    evals, evecs = np.linalg.eig(K)
+    big2small_indices = GetArgSortList(K)
+    # print(evecs[i].shape)
+    # print(evecs[i].T.shape)
+    u_i = evecs[i].T
+    print(u_i)
+    ''' res should be vector3 '''
+    res = np.matmul(KX, u_i)
+    # print(res.shape)
+    res*= math.pow(25, 0.5)/evals[i]
+    res = res.flatten()
+    res = res.getA()
+    # res = res[0].tolist()
+    return res
 
 def SpawnArrows(number=5):
     # spawun 5 * 5 arrows
