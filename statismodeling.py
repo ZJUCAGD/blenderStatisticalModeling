@@ -13,7 +13,7 @@ def Point_at(obj, direction):
     # assume we're using euler rotation
     obj.rotation_euler = rot_quat.to_euler()
     return
-def GaussianKernelValue(point1, point2, sigma=10.0):
+def GaussianKernelValue(point1, point2, sigma = 10.0):
     '''
     access point1&2 by name if point is string
     '''
@@ -30,12 +30,14 @@ def GaussianKernelValue(point1, point2, sigma=10.0):
     print('GuassianKernelValue between {} and {} is: {}\n'.format(point1, point2, result))
     return result
 
-def GaussianKernelMat3(point1,point2,sigma=10.0):
+def GaussianKernelMat3(point1,point2,sigma = 10.0):
     '''
     return GaussianKernelMat 3by3
     '''
     identityMat = np.identity(3)
+    print(identityMat)
     result = identityMat * GaussianKernelValue(point1, point2, sigma)
+    print(result)
     return result
 
 def GetKMat3(rows=5, colums=5):
@@ -62,7 +64,7 @@ def GetArgSortList(K=0):
         K=GetKMat3()
     '''eigh is intended fo symmetric matrices'''
     evals,evecs=np.linalg.eigh(K)
-    print(evals)
+    # print(evals)
     big2small_indices = np.argsort(evals).tolist()
     big2small_indices.reverse()
     return big2small_indices
@@ -78,7 +80,8 @@ def Phi(i, t = "Arrow0", K=0):
                 KX[x, j * 3 + y] = Mat3[x, y]
     for j in range(0, 25):
         assignAt(j)
-    evals, evecs = np.linalg.eig(K)
+    print(KX)
+    evals, evecs = np.linalg.eigh(K)
     big2small_indices = GetArgSortList(K)
     # print(evecs[i].shape)
     # print(evecs[i].T.shape)
