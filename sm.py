@@ -17,9 +17,15 @@ def FindNearest(point):
     upperz = math.ceil(point[2])
     lower = lowerz * 5 * 5 + lowery * 5 + lowerx
     upper = upperz * 5 * 5 + uppery * 5 + upperx
+    lower = "Arrow" + str(lower)
+    upper = "Arrow" + str(upper)
+    print("lower " + lower)
+    print("upper " + upper)
     # print(point)
 def Restore():
     for item in bpy.data.objects:
+        if(item.name[0]!="A")
+            continue
         item.rotation_euler = (0, 0, 0)
         item.scale.x = 0.9
         item.scale.y = 0.2
