@@ -5,7 +5,10 @@ from mathutils import Vector
 import numpy as np
 import _thread
 import time
+reduceFactor = 10
 average = 0
+ArrowDict = {}
+SphereDict = {}
 
 def FindNearest(point):
     assert(type(point)==Vector)
@@ -19,18 +22,54 @@ def FindNearest(point):
     upper = upperz * 5 * 5 + uppery * 5 + upperx
     lower = "Arrow" + str(lower)
     upper = "Arrow" + str(upper)
-    print("lower " + lower)
-    print("upper " + upper)
+    resx = point[0] - lowerx
+    resy = point[1] - lowery
+    resz = point[2] - lowerz
+    lower = ArrowDict[lower]
+    upper = ArrowDict[upper]
+    x = resx * upper[0] + (1-resx) * lower[0]
+    y = resy * upper[1] + (1-resy) * lower[1]
+    z = resz * upper[2] + (1-resz) * lower[2]
+    return x, y, z
+    # print("lower " + lower)
+    # print("upper " + upper)
     # print(point)
+def RestoreSphere(obj = bpy.data.objects['Sphere']):
+    global SphereDict
+    for vert in obj.data.vertices:
+        if(vert.co.x>=0 and vert.co.y>=0 and vert.co.z>=0):
+            vert.co = SphereDict[vert]
+        
+def IterVerts(obj=bpy.data.objects['Sphere']):
+    global SphereDict
+    for vert in obj.data.vertices:
+        if(vert.co.x>=0 and vert.co.y>=0 and vert.co.z>=0):
+            SphereDict[vert] = vert.co.copy()
+    print("verts number of " + obj.name + " is : " + str(len(obj.data.vertices.items())))
+    for vert in obj.data.vertices:
+        if(vert.co.x>=0 and vert.co.y>=0 and vert.co.z>=0):
+            x, y, z =FindNearest(vert.co)
+            x = x/reduceFactor
+            y = y/reduceFactor
+            z = z/reduceFactor
+            vert.co.x += x
+            vert.co.y += y
+            vert.co.z += z
+            # FindNearest(vert.co)
+            
+    pass
 def Restore():
+    global ArrowDict
     for item in bpy.data.objects:
-        if(item.name[0]!="A")
+        if(item.name[0]!="A"):
             continue
+        ArrowDict[item.name] = (0, 0, 0)
         item.rotation_euler = (0, 0, 0)
         item.scale.x = 0.9
         item.scale.y = 0.2
         item.scale.z = 0.3
     return
+    RestoreSphere()
 def Norm(list3):
     norm = pow(list3[0]**2+list3[1]**2+list3[2]**2, 0.5)
     return norm
@@ -52,7 +91,9 @@ def test():
         for k in range(0, 10):
             direction += randoms[k] * Phi(k, name)
             if(t == 0):
-                print(direction)
+                print(Phi(k, name))
+        global ArrowDict
+        ArrowDict[name] = direction
         Point_at(name, direction)
     return
 def Point_at(obj, direction):
@@ -68,7 +109,7 @@ def Point_at(obj, direction):
     # assume we're using euler rotation
     obj.rotation_euler = rot_quat.to_euler()
     return
-def GaussianKernelValue(point1, point2, sigma = 5.0):
+def GaussianKernelValue(point1, point2, sigma = 6.0):
     '''
     access point1&2 by name if point is string
     '''
@@ -85,7 +126,7 @@ def GaussianKernelValue(point1, point2, sigma = 5.0):
     # print('GuassianKernelValue between {} and {} is: {}\n'.format(point1, point2, result))
     return result
 
-def GaussianKernelMat3(point1,point2,sigma = 5.0):
+def GaussianKernelMat3(point1,point2,sigma = 6.0):
     '''
     return GaussianKernelMat 3by3
     '''
