@@ -1,4 +1,11 @@
 sm.pdf
+*.blend
+*.png
+vscode/
+blender_scripts/
+bunny/
+cylinders/
+
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
