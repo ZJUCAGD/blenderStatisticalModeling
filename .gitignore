@@ -1,14 +1,16 @@
+
 sm.pdf
+*.obj
 *.blend
 *.png
 *.blend1
 *.stl
-vscode/
+.vscode/
 blender_scripts/
 bunny/
 cylinders/
 
-
+!gpmm.blend
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
