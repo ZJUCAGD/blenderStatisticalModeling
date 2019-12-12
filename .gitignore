@@ -1,10 +1,13 @@
 sm.pdf
 *.blend
 *.png
+*.blend1
+*.stl
 vscode/
 blender_scripts/
 bunny/
 cylinders/
+
 
 
 # Byte-compiled / optimized / DLL files
