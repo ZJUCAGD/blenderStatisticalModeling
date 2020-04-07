@@ -10,7 +10,9 @@ blender_scripts/
 bunny/
 cylinders/
 
+# 加入这两个 blend 文件
 !gpmm.blend
+!subdivide_test.blend
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
